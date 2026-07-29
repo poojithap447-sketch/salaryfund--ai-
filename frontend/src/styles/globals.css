@@ -1,0 +1,117 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  SalaryFund AI design tokens
+  Signature accent: violet→blue "aurora" gradient on a near-black canvas.
+  Deliberately not the cream/terracotta or acid-green AI defaults.
+*/
+@layer base {
+  :root {
+    --background: 240 25% 98%;
+    --foreground: 240 10% 8%;
+    --surface: 240 20% 100%;
+    --surface-raised: 240 20% 100%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 8%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 8%;
+    --primary: 258 90% 66%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 15% 94%;
+    --secondary-foreground: 240 10% 10%;
+    --accent: 199 89% 58%;
+    --accent-foreground: 0 0% 100%;
+    --muted: 240 15% 94%;
+    --muted-foreground: 240 8% 42%;
+    --success: 152 60% 42%;
+    --warning: 38 92% 50%;
+    --danger: 0 72% 55%;
+    --border: 240 15% 88%;
+    --input: 240 15% 88%;
+    --ring: 258 90% 66%;
+    --radius: 16px;
+  }
+
+  .dark {
+    --background: 240 22% 5%;
+    --foreground: 240 15% 96%;
+    --surface: 240 20% 8%;
+    --surface-raised: 240 18% 11%;
+    --card: 240 20% 9%;
+    --card-foreground: 240 15% 96%;
+    --popover: 240 20% 9%;
+    --popover-foreground: 240 15% 96%;
+    --primary: 258 90% 66%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 16% 14%;
+    --secondary-foreground: 240 15% 96%;
+    --accent: 199 89% 58%;
+    --accent-foreground: 240 25% 6%;
+    --muted: 240 16% 14%;
+    --muted-foreground: 240 10% 65%;
+    --success: 152 55% 48%;
+    --warning: 38 92% 55%;
+    --danger: 0 80% 62%;
+    --border: 240 16% 18%;
+    --input: 240 16% 18%;
+    --ring: 258 90% 66%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  ::selection {
+    @apply bg-primary/30 text-foreground;
+  }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { @apply bg-border rounded-full; }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-muted-foreground/40; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-card/60 backdrop-blur-xl border border-white/[0.06] dark:border-white/[0.06];
+  }
+  .glass-raised {
+    @apply bg-surface-raised/70 backdrop-blur-2xl border border-white/[0.08];
+  }
+  .text-gradient {
+    @apply bg-aurora bg-clip-text text-transparent;
+  }
+  .card-shadow {
+    box-shadow: 0 1px 0 0 rgba(255,255,255,0.04) inset, 0 20px 40px -20px rgba(0,0,0,0.5);
+  }
+  .skeleton {
+    @apply relative overflow-hidden bg-muted rounded-md;
+  }
+  .skeleton::after {
+    content: '';
+    @apply absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer;
+  }
+  .focus-ring {
+    @apply outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+}
