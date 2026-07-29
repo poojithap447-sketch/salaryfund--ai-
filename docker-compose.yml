@@ -1,0 +1,112 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: salaryfund
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-salaryfund_dev_password}
+      POSTGRES_DB: salaryfund_ai
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U salaryfund -d salaryfund_ai"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://salaryfund:${POSTGRES_PASSWORD:-salaryfund_dev_password}@postgres:5432/salaryfund_ai
+      DATABASE_URL_SYNC: postgresql+psycopg2://salaryfund:${POSTGRES_PASSWORD:-salaryfund_dev_password}@postgres:5432/salaryfund_ai
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - uploads_data:/data/uploads
+      - ai_models_data:/data/ai_models
+      - reports_data:/data/reports
+    command: >
+      sh -c "alembic upgrade head &&
+             python -m app.database.seeds.seed_data &&
+             python -m app.ai.training.train_eligibility &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4"
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: docker/celery_worker.Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://salaryfund:${POSTGRES_PASSWORD:-salaryfund_dev_password}@postgres:5432/salaryfund_ai
+      DATABASE_URL_SYNC: postgresql+psycopg2://salaryfund:${POSTGRES_PASSWORD:-salaryfund_dev_password}@postgres:5432/salaryfund_ai
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+    depends_on:
+      - postgres
+      - redis
+      - api
+    volumes:
+      - uploads_data:/data/uploads
+      - ai_models_data:/data/ai_models
+      - reports_data:/data/reports
+
+  celery_beat:
+    build:
+      context: .
+      dockerfile: docker/celery_beat.Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://salaryfund:${POSTGRES_PASSWORD:-salaryfund_dev_password}@postgres:5432/salaryfund_ai
+      DATABASE_URL_SYNC: postgresql+psycopg2://salaryfund:${POSTGRES_PASSWORD:-salaryfund_dev_password}@postgres:5432/salaryfund_ai
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+    depends_on:
+      - postgres
+      - redis
+
+  flower:
+    image: mher/flower:2.0
+    restart: unless-stopped
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/1
+    ports:
+      - "5555:5555"
+    depends_on:
+      - redis
+
+volumes:
+  postgres_data:
+  uploads_data:
+  ai_models_data:
+  reports_data:
