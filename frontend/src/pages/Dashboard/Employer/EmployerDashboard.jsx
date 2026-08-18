@@ -7,39 +7,42 @@ import SplitPieChart from '@/components/charts/SplitPieChart'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useEmployerSummary, useDepartmentAnalytics, useLoanTypeSplit } from '@/hooks/useEmployerData'
-import { formatCurrency, formatPercent } from '@/utils/format'
+import { formatPercent } from '@/utils/format'
+import { employerSummary as defaultEmployerSummary } from '@/utils/mockData'
 
 export default function EmployerDashboard() {
   const { data: summary, isLoading } = useEmployerSummary()
   const { data: departments, isLoading: deptLoading } = useDepartmentAnalytics()
   const { data: loanSplit } = useLoanTypeSplit()
 
+  const safeSummary = summary || defaultEmployerSummary
+
   return (
     <div>
-      <PageHeader title={summary?.companyName || 'Employer overview'} description="Team-wide loan, payroll, and wellness signals." />
+      <PageHeader title={safeSummary?.companyName || 'HR & Employer Overview'} description="Team-wide loan, payroll, and wellness signals." />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {isLoading ? (
+        {isLoading && !summary ? (
           Array.from({ length: 4 }).map((_, i) => <StatCardSkeleton key={i} />)
         ) : (
           <>
-            <StatCard label="Total employees" value={summary.totalEmployees.toLocaleString('en-IN')} icon={Users} accent="primary" />
-            <StatCard label="Active loans" value={summary.activeLoans} icon={Wallet} accent="accent" trend={6} trendLabel="vs last month" />
-            <StatCard label="Pending approval" value={summary.pendingApproval} icon={Clock} accent="warning" />
-            <StatCard label="Default risk" value={formatPercent(summary.defaultRiskRate)} icon={ShieldAlert} accent="success" trend={-3} trendLabel="vs last quarter" />
+            <StatCard label="Total employees" value={(safeSummary?.totalEmployees ?? 1280).toLocaleString('en-IN')} icon={Users} accent="primary" />
+            <StatCard label="Active loans" value={safeSummary?.activeLoans ?? 42} icon={Wallet} accent="accent" trend={6} trendLabel="vs last month" />
+            <StatCard label="Pending approval" value={safeSummary?.pendingApproval ?? 8} icon={Clock} accent="warning" />
+            <StatCard label="Default risk" value={formatPercent(safeSummary?.defaultRiskRate ?? 0.018)} icon={ShieldAlert} accent="success" trend={-3} trendLabel="vs last quarter" />
           </>
         )}
       </div>
 
       <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          {deptLoading ? (
+          {deptLoading && !departments ? (
             <ChartSkeleton height={300} />
           ) : (
             <DistributionBarChart
               title="Department analytics"
               description="Active loans by department"
-              data={departments}
+              data={departments || []}
               dataKey="activeLoans"
               xKey="department"
             />
@@ -70,3 +73,4 @@ export default function EmployerDashboard() {
     </div>
   )
 }
+

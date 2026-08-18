@@ -6,34 +6,38 @@ import DistributionBarChart from '@/components/charts/DistributionBarChart'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { useLenderSummary, useRiskDistribution } from '@/hooks/useLenderData'
 import { formatCurrency, formatPercent } from '@/utils/format'
+import { lenderSummary as defaultLenderSummary, riskDistribution as defaultRisk } from '@/utils/mockData'
 
 export default function LenderDashboard() {
   const { data: summary, isLoading } = useLenderSummary()
   const { data: risk, isLoading: riskLoading } = useRiskDistribution()
 
+  const safeSummary = summary || defaultLenderSummary
+  const safeRisk = risk || defaultRisk
+
   return (
     <div>
-      <PageHeader title={summary?.lenderName || 'Lender overview'} description="Portfolio performance and risk exposure." />
+      <PageHeader title={safeSummary?.lenderName || 'NBFC Lender Overview'} description="Portfolio performance and risk exposure." />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {isLoading ? (
+        {isLoading && !summary ? (
           Array.from({ length: 4 }).map((_, i) => <StatCardSkeleton key={i} />)
         ) : (
           <>
-            <StatCard label="Portfolio value" value={formatCurrency(summary.portfolioValue)} icon={Landmark} accent="primary" />
-            <StatCard label="Active loans" value={summary.activeLoans} icon={Wallet} accent="accent" />
-            <StatCard label="Avg. interest rate" value={formatPercent(summary.avgInterestRate)} icon={Percent} accent="success" />
-            <StatCard label="NPA ratio" value={formatPercent(summary.npaRatio)} icon={ShieldAlert} accent="warning" trend={-0.4} trendLabel="vs last quarter" />
+            <StatCard label="Portfolio value" value={formatCurrency(safeSummary?.portfolioValue ?? 12500000)} icon={Landmark} accent="primary" />
+            <StatCard label="Active loans" value={safeSummary?.activeLoans ?? 384} icon={Wallet} accent="accent" />
+            <StatCard label="Avg. interest rate" value={formatPercent(safeSummary?.avgInterestRate ?? 0.125)} icon={Percent} accent="success" />
+            <StatCard label="NPA ratio" value={formatPercent(safeSummary?.npaRatio ?? 0.008)} icon={ShieldAlert} accent="warning" trend={-0.4} trendLabel="vs last quarter" />
           </>
         )}
       </div>
 
       <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          {riskLoading ? (
+          {riskLoading && !risk ? (
             <ChartSkeleton />
           ) : (
-            <DistributionBarChart title="Risk distribution" description="Active loans by risk tier" data={risk} dataKey="count" xKey="risk" />
+            <DistributionBarChart title="Risk distribution" description="Active loans by risk tier" data={safeRisk} dataKey="count" xKey="risk" />
           )}
         </div>
 
@@ -43,7 +47,7 @@ export default function LenderDashboard() {
             <CardDescription>Trailing 90 days</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="font-display text-4xl font-semibold text-success">{formatPercent(summary?.defaultRate)}</p>
+            <p className="font-display text-4xl font-semibold text-success">{formatPercent(safeSummary?.defaultRate ?? 0.008)}</p>
             <p className="mt-2 text-sm text-muted-foreground">Well within your configured threshold of 3.0%</p>
           </CardContent>
         </Card>
@@ -51,3 +55,4 @@ export default function LenderDashboard() {
     </div>
   )
 }
+

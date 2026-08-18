@@ -6,7 +6,6 @@ import { ROUTES } from '@/constants'
 
 const LINKS = [
   { label: 'About', path: ROUTES.ABOUT },
-  { label: 'Pricing', path: ROUTES.PRICING },
 ]
 
 export default function PublicNavbar() {

@@ -10,7 +10,6 @@ export const ROLES = {
 export const ROUTES = {
   HOME: '/',
   ABOUT: '/about',
-  PRICING: '/pricing',
   LOGIN: '/login',
   REGISTER: '/register',
   FORGOT_PASSWORD: '/forgot-password',

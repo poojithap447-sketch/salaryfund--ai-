@@ -14,7 +14,6 @@ export default function Footer() {
         </div>
         <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
           <Link to={ROUTES.ABOUT} className="hover:text-foreground">About</Link>
-          <Link to={ROUTES.PRICING} className="hover:text-foreground">Pricing</Link>
           <Link to={ROUTES.SUPPORT} className="hover:text-foreground">Support</Link>
           <a href="#" className="hover:text-foreground">Privacy</a>
           <a href="#" className="hover:text-foreground">Terms</a>

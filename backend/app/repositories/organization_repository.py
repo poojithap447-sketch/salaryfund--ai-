@@ -44,6 +44,13 @@ class EmployeeRepository(BaseRepository[Employee]):
         )
         return result.scalar_one_or_none()
 
+    async def get_by_code_any_employer(self, employee_code: str) -> Employee | None:
+        result = await self.db.execute(
+            select(Employee).where(func.lower(Employee.employee_code) == employee_code.lower())
+        )
+        return result.scalars().first()
+
+
     async def list_for_employer(self, employer_id: uuid.UUID, offset: int = 0, limit: int = 100):
         result = await self.db.execute(
             select(Employee).where(Employee.employer_id == employer_id).offset(offset).limit(limit)

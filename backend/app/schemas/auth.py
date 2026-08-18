@@ -25,8 +25,15 @@ class UserRegisterRequest(BaseModel):
 
 
 class UserLoginRequest(BaseModel):
-    email: EmailStr
+    email: str = Field(..., description="Work Email or HR-Assigned Employee Key (e.g. cci26)")
     password: str
+
+
+class FirstTimePasswordSetRequest(BaseModel):
+    employee_key_or_email: str = Field(..., description="Employee Key (e.g. cci26) or Work Email")
+    initial_password: str
+    new_password: str = Field(..., min_length=8, max_length=128)
+
 
 
 class OTPRequestSchema(BaseModel):

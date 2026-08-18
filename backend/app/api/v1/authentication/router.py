@@ -13,6 +13,7 @@ from app.dependencies.auth import CurrentUser, DBSession
 from app.models.rbac import OTPPurpose
 from app.repositories.user_repository import UserRepository
 from app.schemas.auth import (
+    FirstTimePasswordSetRequest,
     OTPRequestSchema,
     OTPVerifyRequest,
     PasswordResetRequest,
@@ -37,7 +38,7 @@ async def register(payload: UserRegisterRequest, db: DBSession):
 
 @router.post("/login", response_model=TokenResponse)
 async def login(payload: UserLoginRequest, request: Request, db: DBSession):
-    """Authenticates with email/password and issues an access + refresh token pair."""
+    """Authenticates with email or employee key (e.g. cci26) / password and issues token pair."""
     service = AuthService(db)
     user = await service.authenticate(payload)
     return await service.issue_tokens(
@@ -45,6 +46,23 @@ async def login(payload: UserLoginRequest, request: Request, db: DBSession):
         device_info=request.headers.get("user-agent"),
         ip_address=request.client.host if request.client else None,
     )
+
+
+@router.post("/first-time-login", response_model=TokenResponse)
+async def first_time_login(payload: FirstTimePasswordSetRequest, request: Request, db: DBSession):
+    """Initial login for HR-provisioned employees: verifies temporary password, sets new password & logs in."""
+    service = AuthService(db)
+    user = await service.set_first_time_password(
+        employee_key_or_email=payload.employee_key_or_email,
+        initial_password=payload.initial_password,
+        new_password=payload.new_password,
+    )
+    return await service.issue_tokens(
+        user,
+        device_info=request.headers.get("user-agent"),
+        ip_address=request.client.host if request.client else None,
+    )
+
 
 
 @router.post("/otp/request", status_code=status.HTTP_202_ACCEPTED)
@@ -60,8 +78,12 @@ async def request_otp(payload: OTPRequestSchema, db: DBSession):
         return {"message": "If an account exists, an OTP has been sent."}
 
     service = AuthService(db)
-    await service.request_otp(user, payload.purpose)
-    return {"message": "OTP sent successfully", "user_id": str(user.id)}
+    code = await service.request_otp(user, payload.purpose)
+    from app.core.config import settings
+    res = {"message": "OTP sent successfully", "user_id": str(user.id)}
+    if settings.ENVIRONMENT == "development" or not settings.SMS_PROVIDER_API_KEY:
+        res["dev_code"] = code
+    return res
 
 
 @router.post("/otp/verify")

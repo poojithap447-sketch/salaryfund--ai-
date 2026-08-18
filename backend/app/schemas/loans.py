@@ -95,3 +95,61 @@ class EMIPaymentRequest(BaseModel):
     emi_id: uuid.UUID
     amount: Decimal = Field(..., gt=0)
     payment_gateway_ref: str | None = None
+
+
+class BureauFetchRequest(BaseModel):
+    pan_number: str = Field(..., description="Employee PAN Card Number (10 alphanumeric)")
+    full_name: str | None = Field(None, description="Full Name as per PAN")
+    dob: str | None = Field(None, description="Date of Birth (YYYY-MM-DD)")
+    mobile_number: str | None = Field(None, description="Mobile Number registered with Aadhaar/PAN")
+    pincode: str | None = Field(None, description="Residential Postal Code")
+    bureau_api_key: str | None = Field(None, description="Credit Bureau API Key")
+    monthly_income: float = Field(75000.0, description="Monthly Net Income")
+
+
+class PreviousLoanRecord(BaseModel):
+    id: str
+    lender: str
+    amount: float
+    status: str
+    dpd_status: str
+    on_time_rate_pct: float
+    defaults: int
+
+
+class BureauFetchResponse(BaseModel):
+    pan_number: str
+    full_name: str
+    cibil_score: int
+    risk_tier: str
+    ai_recommended_limit: float
+    max_safe_emi: float
+    active_emis_total: float
+    recent_hard_inquiries: int
+    total_past_loans: int
+    on_time_repayment_pct: float
+    total_defaults: int
+    previous_loans: list[PreviousLoanRecord]
+
+
+class CibilOtpRequest(BaseModel):
+    pan_number: str = Field(..., description="10-digit PAN number")
+    mobile_number: str = Field(..., description="Mobile number linked with PAN/Aadhaar")
+    full_name: str | None = None
+
+
+class CibilOtpRequestResponse(BaseModel):
+    tx_id: str
+    message: str
+    dev_code: str | None = None
+
+
+class CibilOtpVerifyRequest(BaseModel):
+    tx_id: str
+    otp_code: str
+    pan_number: str
+    mobile_number: str | None = None
+    full_name: str | None = None
+    monthly_income: float = 75000.0
+
+

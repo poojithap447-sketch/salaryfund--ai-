@@ -71,6 +71,9 @@ class Settings(BaseSettings):
     ELIGIBILITY_MODEL_VERSION: str = "v1"
     FRAUD_MODEL_VERSION: str = "v1"
 
+    # --- Credit Bureau Integration ---
+    CREDIT_BUREAU_API_KEY: str = "CIBIL-OFFICIAL-KEY-9982"
+
     # --- Encryption for PII at rest ---
     FIELD_ENCRYPTION_KEY: str = Field(..., description="Fernet key for encrypting PII columns")
 

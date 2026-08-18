@@ -4,12 +4,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 function ChartTooltip({ active, payload, label, valueFormatter }) {
   if (!active || !payload?.length) return null
   return (
-    <div className="glass-raised rounded-lg px-3 py-2 text-xs shadow-xl">
-      <p className="font-medium text-muted-foreground">{label}</p>
+    <div className="rounded-xl border border-white/15 bg-slate-900/95 px-3.5 py-2.5 shadow-2xl backdrop-blur-md">
+      <p className="mb-1 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">{label}</p>
       {payload.map((p) => (
-        <p key={p.dataKey} className="font-semibold" style={{ color: p.color }}>
-          {valueFormatter ? valueFormatter(p.value) : p.value}
-        </p>
+        <div key={p.dataKey} className="flex items-center gap-2 text-xs">
+          <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: p.color }} />
+          <span className="font-medium text-slate-300">{p.name || p.dataKey}:</span>
+          <span className="font-bold text-white">{valueFormatter ? valueFormatter(p.value) : p.value}</span>
+        </div>
       ))}
     </div>
   )

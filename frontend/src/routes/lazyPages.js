@@ -2,7 +2,6 @@ import { lazy } from 'react'
 
 export const Landing = lazy(() => import('@/pages/Landing/Landing'))
 export const About = lazy(() => import('@/pages/Landing/About'))
-export const Pricing = lazy(() => import('@/pages/Landing/Pricing'))
 
 export const Login = lazy(() => import('@/pages/Authentication/Login'))
 export const Register = lazy(() => import('@/pages/Authentication/Register'))
@@ -30,5 +29,7 @@ export const Settings = lazy(() => import('@/pages/Settings/Settings'))
 export const Profile = lazy(() => import('@/pages/Profile/Profile'))
 export const Support = lazy(() => import('@/pages/Support/Support'))
 export const Payroll = lazy(() => import('@/pages/Payroll/Payroll'))
+export const EmployeesPage = lazy(() => import('@/pages/Employees/EmployeesPage'))
+export const LenderPortfolioPage = lazy(() => import('@/pages/Lender/LenderPortfolioPage'))
 
 export const NotFound = lazy(() => import('@/pages/NotFound'))
