@@ -37,6 +37,23 @@ async def health_check():
     return {"status": overall, "checks": checks, "version": "1.0.0"}
 
 
+@router.get("/db-test")
+async def db_test():
+    """Simple endpoint to verify database connectivity with SELECT 1 query."""
+    try:
+        async with AsyncSessionLocal() as session:
+            await session.execute(text("SELECT 1"))
+        return {"database": "connected"}
+    except Exception as exc:
+        # Sanitize exception message to ensure no credentials or sensitive DSN data is exposed
+        error_type = type(exc).__name__
+        raw_msg = str(exc)
+        # Extract first line of error message and remove connection string details if any
+        clean_msg = raw_msg.splitlines()[0] if raw_msg else error_type
+        return {"database": "not connected", "error": f"{error_type}: {clean_msg}"}
+
+
 @router.get("/")
 async def root():
     return {"service": "SalaryFund AI", "status": "running", "docs": "/docs"}
+

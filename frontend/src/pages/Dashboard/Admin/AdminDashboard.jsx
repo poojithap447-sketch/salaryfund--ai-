@@ -67,16 +67,16 @@ export default function AdminDashboard() {
           {logsLoading
             ? Array.from({ length: 4 }).map((_, i) => <div key={i} className="skeleton h-12 w-full rounded-lg" />)
             : logs.map((log) => (
-                <div key={log.id} className="flex items-center justify-between gap-3 rounded-xl bg-secondary/30 px-4 py-3">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium">{log.action}</p>
-                    <p className="text-xs text-muted-foreground">{log.actor} · {log.time}</p>
-                  </div>
-                  <Badge variant={LEVEL_VARIANT[log.level] || 'secondary'} className="shrink-0 capitalize">
-                    {log.level}
-                  </Badge>
+              <div key={log.id} className="flex items-center justify-between gap-3 rounded-xl bg-secondary/30 px-4 py-3">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium">{log.action}</p>
+                  <p className="text-xs text-muted-foreground">{log.actor} · {log.time}</p>
                 </div>
-              ))}
+                <Badge variant={LEVEL_VARIANT[log.level] || 'secondary'} className="shrink-0 capitalize">
+                  {log.level}
+                </Badge>
+              </div>
+            ))}
         </CardContent>
       </Card>
     </div>

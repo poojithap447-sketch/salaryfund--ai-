@@ -27,9 +27,9 @@ class Settings(BaseSettings):
     OTP_EXPIRE_MINUTES: int = 5
     PASSWORD_RESET_TOKEN_EXPIRE_MINUTES: int = 30
 
-    # --- Database ---
+    # --- Database (Neon PostgreSQL Cloud / Local PostgreSQL) ---
     DATABASE_URL: str = Field(..., description="Async SQLAlchemy DSN, e.g. postgresql+asyncpg://...")
-    DATABASE_URL_SYNC: str = Field(..., description="Sync DSN for Alembic")
+    DATABASE_URL_SYNC: str = Field(..., description="Sync DSN for Alembic, e.g. postgresql+psycopg2://...")
     DB_POOL_SIZE: int = 20
     DB_MAX_OVERFLOW: int = 10
 

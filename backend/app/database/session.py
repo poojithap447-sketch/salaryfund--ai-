@@ -6,8 +6,18 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 from app.core.config import settings
 
+connect_args = {}
+if "neon.tech" in settings.DATABASE_URL:
+    try:
+        host_part = settings.DATABASE_URL.split("@")[-1].split("/")[0]
+        endpoint_id = host_part.split(".")[0].replace("-pooler", "")
+        connect_args["server_settings"] = {"options": f"endpoint={endpoint_id}"}
+    except Exception:
+        pass
+
 engine = create_async_engine(
     settings.DATABASE_URL,
+    connect_args=connect_args,
     pool_size=settings.DB_POOL_SIZE,
     max_overflow=settings.DB_MAX_OVERFLOW,
     pool_pre_ping=True,
